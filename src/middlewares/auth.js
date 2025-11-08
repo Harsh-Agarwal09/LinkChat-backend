@@ -11,7 +11,7 @@ const userAuth = async (req, res, next) => {
     }
 
     // Verify the token
-    const decodedObj = await jwt.verify(token, "LINK@ChatApp");
+    const decodedObj = await jwt.verify(token, process.env.JWT_SECRET);
     // Extract the user id from the decoded token
     const { _id } = decodedObj;
 

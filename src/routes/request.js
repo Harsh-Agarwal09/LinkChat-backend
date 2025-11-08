@@ -4,6 +4,7 @@ const { userAuth } = require("../middlewares/auth");
 const ConnectionRequest = require("../models/connectionRequest");
 const User = require("../models/user");
 const mongoose = require("mongoose");
+const { sendEmail } = require("../utils/sendEmail");
 
 // Send Connection Request API - POST /sendConnectionRequest - send a connection request to another user
 requestRouter.post(
@@ -51,12 +52,23 @@ requestRouter.post(
 
       const data = await connectionRequest.save();
 
+      // Sending email to each user once he is interested or ignored
+      // ✅ Send an email when request is sent
+      await sendEmail(
+        "harshbansallovesv143@gmail.com",
+        "New Connection Request - LinkChat",
+        `<h2>New Connection Request</h2>
+         <p>${req.user.firstName} has shown ${status} in connecting with ${toUser.firstName}.</p>
+         <p>Visit LinkChat to view more details.</p>`,
+        `${req.user.firstName} has shown ${status} in connecting with ${toUser.firstName}.`
+      );
+
       res.json({
-        message:
-          req.user.firstName + " is " + status + " in " + toUser.firstName,
+        message: `${req.user.firstName} is ${status} in ${toUser.firstName}`,
         data,
       });
     } catch (err) {
+      console.error("❌ Error in request/send:", err);
       res.status(400).send("ERROR: " + err.message);
     }
   }
